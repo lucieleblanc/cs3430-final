@@ -6,7 +6,7 @@ const MAJ = 'maj';
 const MIN = 'min';
 const notes = {
 	'C': 0, 'C#': 1, 'Db': 1, 'D': 2, 'D#': 3, 'Eb': 3,
-	'E': 4,'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
+	'E': 4, 'F': 5, 'F#': 6, 'Gb': 6, 'G': 7, 'G#': 8,
 	'Ab': 8, 'A': 9, 'A#': 10, 'Bb': 10, 'B': 11,
 }
 
@@ -61,10 +61,18 @@ function shortestPath(src, dst) {
 	// follow prev pointers backwards to find path
 	let path = [dst];
 	let srcstr = JSON.stringify(src);
-	let nodestr = JSON.stringify(dst);
+	let dststr = JSON.stringify(dst)
+	let nodestr = dststr;
 	while (nodestr != srcstr) {
 		nodestr = back[nodestr];
+		if (nodestr == undefined) {
+			return shortestPath(src, dst);
+		}
 		path.unshift(JSON.parse(nodestr));
+	}
+
+	if (srcstr != dststr && path.length <= 2) {
+		return shortestPath(src, dst);
 	}
 
 	return path;
@@ -88,7 +96,7 @@ function findPath() {
 	document.getElementById("path-text").innerHTML = pathToString(path);
 
 	if (audioCtx) {
-		gainNode.gain.value = 0.2;	
+		gainNode.gain.value = 0.2;
 	} else {
 		audioCtx = new (window.AudioContext || window.webkitAudioContext)
 		gainNode = audioCtx.createGain();
@@ -97,11 +105,11 @@ function findPath() {
 			osc[i].type = "triangle"
 			osc[i].connect(gainNode)
 			osc[i].start()
-			console.log(i)
+			console.log("Initializing osc[" + i + "]")
 		}
 		gainNode.gain.value = 0.2;
 		gainNode.connect(audioCtx.destination);
-	} 
+	}
 
 	playLine(path)
 }
@@ -114,7 +122,7 @@ const noteDuration = 0.8; // in seconds
 function getNotes(chord) {
 	let notes = [chord.root]
 	notes.push((chord.root + 7) % 12)
-	
+
 	if (chord.quality == MAJ) {
 		notes.push((chord.root + 4) % 12)
 	} else {
@@ -128,7 +136,7 @@ function transpose(noteList) {
 }
 
 function midiToFreq(m) {
-    return Math.pow(2, (m - 69) / 12) * 440;
+	return Math.pow(2, (m - 69) / 12) * 440;
 }
 
 function playLine(path) {
@@ -143,14 +151,14 @@ function playLine(path) {
 }
 
 function playChord(noteList, offset) {
-    console.log(noteList)
-    for (var i = 0; i < noteList.length; i++) {
-        playNote(noteList[i], offset, i);
-    }
+	console.log("Chord: " + noteList)
+	for (var i = 0; i < noteList.length; i++) {
+		playNote(noteList[i], offset, i);
+	}
 }
 
 function playNote(midiPitch, offset, oscIndex) {
-    osc[oscIndex].frequency.setTargetAtTime(midiToFreq(midiPitch), offset, 0.001)
+	osc[oscIndex].frequency.setTargetAtTime(midiToFreq(midiPitch), offset, 0.001)
 	gainNode.gain.exponentialRampToValueAtTime(0.01, offset) // start attack
 	gainNode.gain.exponentialRampToValueAtTime(0.2, offset + 0.01)  // end attack
 	gainNode.gain.exponentialRampToValueAtTime(0.17, offset + 0.05)  // decay 
