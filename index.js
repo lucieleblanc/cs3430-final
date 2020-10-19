@@ -88,7 +88,7 @@ function findPath() {
 	document.getElementById("path-text").innerHTML = pathToString(path);
 
 	if (audioCtx) {
-		gainNode.gain.value = 0.3;	
+		gainNode.gain.value = 0.2;	
 	} else {
 		audioCtx = new (window.AudioContext || window.webkitAudioContext)
 		gainNode = audioCtx.createGain();
@@ -99,7 +99,7 @@ function findPath() {
 			osc[i].start()
 			console.log(i)
 		}
-		gainNode.gain.value = 0.3;
+		gainNode.gain.value = 0.2;
 		gainNode.connect(audioCtx.destination);
 	} 
 
@@ -107,7 +107,6 @@ function findPath() {
 }
 
 // ----- AUDIO ----- //
-
 
 const middleC = 60;
 const noteDuration = 0.8; // in seconds
@@ -153,9 +152,9 @@ function playChord(noteList, offset) {
 function playNote(midiPitch, offset, oscIndex) {
     osc[oscIndex].frequency.setTargetAtTime(midiToFreq(midiPitch), offset, 0.001)
 	gainNode.gain.exponentialRampToValueAtTime(0.01, offset) // start attack
-	gainNode.gain.exponentialRampToValueAtTime(0.4, offset + 0.01)  // end attack
-	gainNode.gain.exponentialRampToValueAtTime(0.35, offset + 0.05)  // decay 
-	gainNode.gain.setValueAtTime(0.35, offset + 0.7)				 // start release
+	gainNode.gain.exponentialRampToValueAtTime(0.2, offset + 0.01)  // end attack
+	gainNode.gain.exponentialRampToValueAtTime(0.17, offset + 0.05)  // decay 
+	gainNode.gain.setValueAtTime(0.17, offset + 0.765)				 // start release
 	gainNode.gain.exponentialRampToValueAtTime(0.01, offset + 0.8) // end release	
 }
 
