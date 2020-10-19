@@ -1,3 +1,7 @@
+let audioCtx;
+let osc = [];
+let gainNode;
+
 const MAJ = 'maj';
 const MIN = 'min';
 const notes = {
@@ -59,7 +63,7 @@ function shortestPath(src, dst) {
 		path.unshift(JSON.parse(nodestr));
 	}
 
-	return path; å
+	return path;
 }
 
 function inputStringToChord(string) {
@@ -67,10 +71,10 @@ function inputStringToChord(string) {
 	return { root: notes[rootStr], quality }
 }
 
-function pathToString(pathå) {
+function pathToString(path) {
 	return path
 		.map(chord => getKeyByValue(notes, chord.root) + ' ' + chord.quality)
-		.join('&nbsp; → &nbsp;')
+		.join('&nbsp; --> &nbsp;')
 }
 
 function findPath() {
@@ -78,4 +82,63 @@ function findPath() {
 	dst = inputStringToChord(document.getElementById("dst").value);
 	path = shortestPath(src, dst);
 	document.getElementById("path-text").innerHTML = pathToString(path);
+	
+	audioCtx = new (window.AudioContext || window.webkitAudioContext)
+	gainNode = audioCtx.createGain();
+	for (let i = 0; i < 3; i++) {
+		osc.push(audioCtx.createOscillator());
+		osc[i].connect(gainNode)
+		osc[i].start()
+		console.log(i)
+	}
+	gainNode.gain.value = 0.3;
+	gainNode.connect(audioCtx.destination);
+
+	playLine(path)
 }
+
+// ----- AUDIO ----- //
+
+
+const middleC = 60;
+
+function getNotes(chord) {
+	let notes = [chord.root]
+	notes.push((chord.root + 7) % 12)
+	
+	if (chord.quality == MAJ) {
+		notes.push((chord.root + 4) % 12)
+	} else {
+		notes.push((chord.root + 3) % 12)
+	}
+	return transpose(notes)
+}
+
+function transpose(noteList) {
+	return noteList.map(note => note + middleC);
+}
+
+function midiToFreq(m) {
+    return Math.pow(2, (m - 69) / 12) * 440;
+}
+
+function playLine(path) {
+	let startTime = audioCtx.currentTime
+	for (var i = 0; i < path.length; i++) {
+		noteList = getNotes(path[i])
+		playChord(noteList, startTime + i * 0.05)
+	}
+}
+
+function playChord(noteList, offset) {
+    console.log(noteList)
+    for (var i = 0; i < noteList.length; i++) {
+        playNote(noteList[i], offset, i);
+    }
+}
+
+function playNote(midiPitch, offset, oscIndex) {
+    osc[oscIndex].frequency.setTargetAtTime(midiToFreq(midiPitch), offset, 0.001)
+	console.log("playing note " + midiPitch)
+}
+
