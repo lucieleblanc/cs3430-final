@@ -86,17 +86,21 @@ function findPath() {
 	dst = inputStringToChord(document.getElementById("dst").value);
 	path = shortestPath(src, dst);
 	document.getElementById("path-text").innerHTML = pathToString(path);
-	
-	audioCtx = new (window.AudioContext || window.webkitAudioContext)
-	gainNode = audioCtx.createGain();
-	for (let i = 0; i < 3; i++) {
-		osc.push(audioCtx.createOscillator());
-		osc[i].connect(gainNode)
-		osc[i].start()
-		console.log(i)
-	}
-	gainNode.gain.value = 0.3;
-	gainNode.connect(audioCtx.destination);
+
+	if (audioCtx) {
+		gainNode.gain.value = 0.3;	
+	} else {
+		audioCtx = new (window.AudioContext || window.webkitAudioContext)
+		gainNode = audioCtx.createGain();
+		for (let i = 0; i < 3; i++) {
+			osc.push(audioCtx.createOscillator());
+			osc[i].connect(gainNode)
+			osc[i].start()
+			console.log(i)
+		}
+		gainNode.gain.value = 0.3;
+		gainNode.connect(audioCtx.destination);
+	} 
 
 	playLine(path)
 }
@@ -134,7 +138,7 @@ function playLine(path) {
 		playChord(noteList, startTime + i * noteDuration)
 	}
 	for (var i = 0; i < 3; i++) {
-		osc[i].stop(startTime + path.length * noteDuration)
+		gainNode.gain.setValueAtTime(0, startTime + path.length * noteDuration)
 	}
 }
 
