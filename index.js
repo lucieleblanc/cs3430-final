@@ -101,6 +101,7 @@ function findPath() {
 
 
 const middleC = 60;
+const noteDuration = 0.7; // in seconds
 
 function getNotes(chord) {
 	let notes = [chord.root]
@@ -126,7 +127,10 @@ function playLine(path) {
 	let startTime = audioCtx.currentTime
 	for (var i = 0; i < path.length; i++) {
 		noteList = getNotes(path[i])
-		playChord(noteList, startTime + i * 0.05)
+		playChord(noteList, startTime + i * noteDuration)
+	}
+	for (var i = 0; i < 3; i++) {
+		osc[i].stop(startTime + path.length * noteDuration)
 	}
 }
 
