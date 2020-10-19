@@ -15,19 +15,23 @@ function getKeyByValue(object, value) {
 }
 
 function neighbors(chord) {
+	let arr = []
 	if (chord.quality == MAJ) {
-		return [
-			//{ root: (chord.root) % 12, quality: MIN },
+		arr = [
+			{ root: (chord.root) % 12, quality: MIN },
 			{ root: (chord.root + 4) % 12, quality: MIN },
 			{ root: (chord.root + 9) % 12, quality: MIN },
 		]
 	} else {
-		return [
-			//{ root: (chord.root) % 12, quality: MAJ },
+		arr = [
+			{ root: (chord.root) % 12, quality: MAJ },
 			{ root: (chord.root + 3) % 12, quality: MAJ },
 			{ root: (chord.root + 8) % 12, quality: MAJ },
 		]
 	}
+	const rand = Math.floor(Math.random() * 3);
+	arr.splice(rand, 1)
+	return arr
 }
 
 function shortestPath(src, dst) {
