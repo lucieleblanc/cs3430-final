@@ -94,6 +94,7 @@ function findPath() {
 		gainNode = audioCtx.createGain();
 		for (let i = 0; i < 3; i++) {
 			osc.push(audioCtx.createOscillator());
+			osc[i].type = "triangle"
 			osc[i].connect(gainNode)
 			osc[i].start()
 			console.log(i)
@@ -109,7 +110,7 @@ function findPath() {
 
 
 const middleC = 60;
-const noteDuration = 0.7; // in seconds
+const noteDuration = 0.8; // in seconds
 
 function getNotes(chord) {
 	let notes = [chord.root]
@@ -151,6 +152,10 @@ function playChord(noteList, offset) {
 
 function playNote(midiPitch, offset, oscIndex) {
     osc[oscIndex].frequency.setTargetAtTime(midiToFreq(midiPitch), offset, 0.001)
-	console.log("playing note " + midiPitch)
+	gainNode.gain.exponentialRampToValueAtTime(0.01, offset) // start attack
+	gainNode.gain.exponentialRampToValueAtTime(0.4, offset + 0.01)  // end attack
+	gainNode.gain.exponentialRampToValueAtTime(0.35, offset + 0.05)  // decay 
+	gainNode.gain.setValueAtTime(0.35, offset + 0.7)				 // start release
+	gainNode.gain.exponentialRampToValueAtTime(0.01, offset + 0.8) // end release	
 }
 
