@@ -166,3 +166,71 @@ function playNote(midiPitch, offset, oscIndex) {
 	gainNode.gain.exponentialRampToValueAtTime(0.01, offset + 0.8) // end release	
 }
 
+
+// ----- VISUALS ----- //
+
+/* uses indices of a triangle to render it */
+function drawTriangle(i, j, txt, on) {
+	const globalX = 0;
+	const globalY = 0;
+	const baseSize = 50;
+	const heightSize = baseSize * Math.sqrt(2);
+
+	const soft_MAJ = color(255, 180, 180);
+	const bright_MAJ = color(255, 75, 75);
+	const soft_MIN = color(180, 180, 255);
+	const bright_MIN = color(75, 75, 255);
+	const text_color = color(0, 0, 0);
+
+    const x = globalX + (Math.floor(i) + j) * baseSize;
+    const y = globalY + (j) * heightSize;
+
+    if (i % 2 === 0) {
+        noStroke();
+        if (on) {
+            fill(bright_MAJ);
+        } else {
+            fill(soft_MAJ);
+        }
+        triangle(x, y, x + baseSize, y + heightSize, x + 2 * baseSize, y);
+        fill(text_color);
+        text(txt, x + baseSize, y + 0.4 * heightSize);
+    } else {
+        noStroke();
+        if (on) {
+            fill(bright_MIN);
+        } else {
+            fill(soft_MIN);
+        }
+        triangle(x + baseSize, y, x + 2 * baseSize, y + heightSize, x, y + heightSize);
+        fill(text_color);
+        text(txt, x + baseSize, y + 0.6 * heightSize);
+    }
+
+}
+
+function drawBasicLattice() {
+	const numRows = 8;
+	const numColumns = 3;
+
+	textAlign(CENTER, CENTER);
+	for (var i = 0; i < numRows; i++) {
+		for (var j = 0; j < numColumns; j++) {
+			drawTriangle(i, j, "(" + i + "," + j + ")", false);
+		}
+	}
+}
+
+function drawFullLattice(i, j, chordName) {
+	drawBasicLattice();
+	drawTriangle(i, j, chordName, true);
+}
+
+function setup() {
+	const canvasW = 600;
+	const canvasH = 300;
+
+	createCanvas(canvasW, canvasH);
+	drawBasicLattice();
+}
+
