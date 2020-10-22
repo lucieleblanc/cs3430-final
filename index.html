@@ -6,31 +6,125 @@
 	<title>Michael and Lucie's Final Project!</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
 		integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+	<style>
+		body {
+			padding: 10px;
+			background-color: blanchedalmond;
+		}
+		h3 {
+			font-size: 1em;
+			font-style: italic;
+		}
+		canvas {
+			margin: 0 auto;
+			display: block;
+		}
+		.project-inputs {
+			margin-top: 2em;
+			margin-bottom: 1em;
+		}
+		.project-inputs div {
+			width: 65%;
+			margin: 0 auto;
+		}
+	</style>
 </head>
 
-<body style="padding: 10px; background-color:blanchedalmond">
+<body>
+<div class="container">
+	<h1>Audiovisual Tonnetz Lattice Modulation</h1>
+	<h3>Michael Jan (mj2886), Lucie le Blanc (ll3163)</h3>
 
-	<div style="padding-bottom: 10px;">
-		First chord:
-		<input type="text" id="src" value="F maj">
+	<p>For our final project, we implemented a 
+	Tonnetz lattice in JavaScript with WebAudio and P5.js.</p>
+
+	<h5>What is a Tonnetz lattice?</h5>
+	<p>
+	The Tonnetz lattice is a visual representation of major and minor triads. 
+	It represents triads as triangles, where each point is a distinct note. 
+	Adjacent triangles represent triads with common notes. 
+	If two triangles share a point, the triads they represent share one note. 
+	If they share an edge, the triads they represent share two notes.
+	In theory, the closer two chords are on the Tonnetz lattice, 
+	the closer together they are harmonically, 
+	meaning it is easier for the ear to transition from one to the other.
+	</p>
+
+	<p>
+	We think the Tonnetz lattice is a fairly intuitive representation 
+	of one of the most basic concepts of Western music theory, 
+	and wanted to use WebAudio and some kind of visual to make the 
+	Tonnetz lattice more tangible than a Wikipedia article.
+	</p>
+
+	<h5>Connecting chords using the lattice</h5>
+	<p>
+	In our project, we use the Tonnetz lattice to find modulation paths 
+	between two user-inputted chords. We implemented this using a classic
+	breadth-first search algorithm, using chords as nodes in a graph.
+	To find neighboring chords, we replaced one of the notes in the triad
+	with the equivalent note in one of its neighbors.
+	</p>
+
+	<p>
+	To make chord paths more interesting, we randomized the path by
+	hiding one neighbor on every pass. The user can enter the same pair 
+	of chords and obtain a different path every time.
+	</p>
+
+	<h5>Creating chords in WebAudio</h5>
+
+	<p>
+	We used WebAudio to implement the lattice&#39s audio aspect. 
+	Instead of storing and manipulating note frequencies directly,
+	we used MIDI representation. This allowed us to calculate relative
+	MIDI note numbers by counting the number of semitones between two notes.
+	</p>
+
+	<p>
+	We originally wanted to keep track of each chord&#39s inversion to 
+	facilitate voice-leading, but this proved to be messy and unnecessary. 
+	Instead, we decided to constrain all notes to a single octave, 
+	so that the same note name ("A", "F#", etc.) would always be played 
+	at the same pitch. This means some chord transitions don&#39t sound 
+	as smooth as others if the note names wrap around the octave edges.
+	</p>
+
+	<h5>Drawing the lattice in P5</h5>
+
+	<p>
+	We used P5.js to programmatically draw the lattice in an HTML canvas. 
+	The triangles are rendered one at a time, and 
+	the lattice size and position are fully adjustable.
+	We used lighter colors to represent inactive triads, and brighter versions
+	of the same colons for activated triads. 
+	</p>
+
+	<div class="project-inputs">
+		<div style="padding-bottom: 10px;">
+			First chord:
+			<input type="text" id="src" value="F maj">
+		</div>
+
+		<div style="padding-bottom: 10px;">
+			Second chord:
+			<input type="text" id="dst" value="G maj">
+		</div>
+
+		<div style="padding-bottom: 10px;">
+			<button id="find-path" onclick="findPath()">
+				Find path!
+			</button>
+		</div>
+
+		<div>Path found: &nbsp; <span id="path-text"></span></div>
+
+		<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
+		<script src="index.js"></script>
 	</div>
 
-	<div style="padding-bottom: 10px;">
-		Second chord:
-		<input type="text" id="dst" value="G maj">
-	</div>
-
-	<div style="padding-bottom: 10px;">
-		<button id="find-path" onclick="findPath()">
-			Find path!
-		</button>
-	</div>
-
-	Path found: &nbsp;
-	<span id="path-text"></span>
-
-	<script src="https://cdn.jsdelivr.net/npm/p5@1.1.9/lib/p5.js"></script>
-	<script src="index.js"></script>
+</div>
 </body>
 
 </html>
