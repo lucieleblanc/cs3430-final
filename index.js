@@ -83,10 +83,12 @@ function inputStringToChord(string) {
 	return { root: notes[rootStr], quality }
 }
 
+function chordToString(chord) {
+	return getKeyByValue(notes, chord.root) + ' ' + chord.quality;
+}
+
 function pathToString(path) {
-	return path
-		.map(chord => getKeyByValue(notes, chord.root) + ' ' + chord.quality)
-		.join('&nbsp; --> &nbsp;')
+	return path.map(chordToString).join('&nbsp; --> &nbsp;')
 }
 
 function findPath() {
@@ -141,10 +143,14 @@ function midiToFreq(m) {
 
 function playLine(path) {
 	let startTime = audioCtx.currentTime
-	for (var i = 0; i < path.length; i++) {
+	var i;
+	for (i = 0; i < path.length; i++) {
 		noteList = getNotes(path[i])
+		setTimeout(drawLattice, i * noteDuration * 1000, chordToString(path[i]));
 		playChord(noteList, startTime + i * noteDuration)
 	}
+	setTimeout(drawLattice, i * noteDuration * 1000, null);
+
 	for (var i = 0; i < 3; i++) {
 		gainNode.gain.setValueAtTime(0, startTime + path.length * noteDuration)
 	}
@@ -172,7 +178,7 @@ function playNote(midiPitch, offset, oscIndex) {
 /* uses indices of a triangle to render it */
 function drawTriangle(i, j, txt, on) {
 	const globalX = 0;
-	const globalY = 0;
+	const globalY = 15;
 	const baseSize = 50;
 	const heightSize = baseSize * Math.sqrt(2);
 
@@ -182,10 +188,10 @@ function drawTriangle(i, j, txt, on) {
 	const bright_MIN = color(75, 75, 255);
 	const text_color = color(0, 0, 0);
 
-    const x = globalX + (Math.floor(i) + j) * baseSize;
-    const y = globalY + (j) * heightSize;
-
-    if (i % 2 === 0) {
+    const x = globalX + (Math.floor(j) + i) * baseSize;
+	const y = globalY + i * heightSize;
+	
+    if (j % 2 === 0) {
         noStroke();
         if (on) {
             fill(bright_MAJ);
@@ -209,21 +215,49 @@ function drawTriangle(i, j, txt, on) {
 
 }
 
-function drawBasicLattice() {
-	const numRows = 8;
-	const numColumns = 3;
+// drawBasicLattice('0maj')
+function drawLattice(chordName) {
+	console.log(chordName);
+	const numRows = 3;
+	const numColumns = 8;
+	const chordNames = {
+		'C maj': "1,4", 	// C maj
+		'C# maj': "0,2", 	// C# maj
+		'D maj': "2,0",  	// D maj
+		'D# maj': "0,6",  	// D# maj
+		'E maj': "2,4",  	// E maj
+		'F maj': "1,2",  	// F maj
+		'F# maj': "0,0",  	// F# maj
+		'G maj': "1,6",  	// G maj
+		'G# maj': "0,4",  	// G# maj
+		'A maj': "2,2",  	// A maj
+		'A# maj':"1,0",  	// A# maj
+		'B maj':"2,6",  	// B maj
+		'C min': "0,5",  	// C min
+		'C# min': "2,3",  	// C# min
+		'D min': "1,1",  	// D min
+		'D# min': "2,7",  	// D# min
+		'E min': "1,5",  	// E min
+		'F min': "0,3",  	// F min
+		'F# min': "2,1",  	// F# min
+		'G min': "0,7",  	// G min
+		'G# min': "2,5",  	// G# min
+		'A min': "1,3",  	// A min
+		'A# min':"0,1",  	// A# min
+		'B min':"1,7",  	// B min
+	};
 
 	textAlign(CENTER, CENTER);
 	for (var i = 0; i < numRows; i++) {
 		for (var j = 0; j < numColumns; j++) {
-			drawTriangle(i, j, "(" + i + "," + j + ")", false);
+			drawTriangle(i, j, getKeyByValue(chordNames, i + "," + j), false);
 		}
 	}
-}
 
-function drawFullLattice(i, j, chordName) {
-	drawBasicLattice();
-	drawTriangle(i, j, chordName, true);
+	if (chordName) { 
+		pos = chordNames[chordName].split(',');
+		drawTriangle(parseInt(pos[0]), parseInt(pos[1]), chordName, true);
+	}
 }
 
 function setup() {
@@ -231,6 +265,6 @@ function setup() {
 	const canvasH = 300;
 
 	createCanvas(canvasW, canvasH);
-	drawBasicLattice();
+	drawLattice(null);
 }
 
